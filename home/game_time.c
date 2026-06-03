@@ -119,7 +119,7 @@ static void GameTimer_Function(void) {
     // LD_A_addr(wGameTimeHours + 1);
     // LD_L_A;
     // INC_HL;
-    uint16_t hours = gPlayer.gameTimeHours + 1;
+    uint16_t hours = BigEndianToNative16(gPlayer.gameTimeHours) + 1;
 
 //  Cap the timer after 1000 hours.
     // LD_A_H;
@@ -150,5 +150,5 @@ static void GameTimer_Function(void) {
     // LD_addr_A(wGameTimeHours);
     // LD_A_L;
     // LD_addr_A(wGameTimeHours + 1);
-    gPlayer.gameTimeHours = hours;
+    gPlayer.gameTimeHours = NativeToBigEndian16(hours);
 }

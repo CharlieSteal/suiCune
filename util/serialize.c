@@ -19,6 +19,8 @@
 enum FieldType {
     TY_U8,
     TY_U16LE,
+    // Runtime stores swapped 16-bit values (see NativeToBigEndian16); retail SRAM is LE.
+    TY_U16LE_GB,
     TY_U16BE,
     TY_SPECIES,
     TY_ITEM,
@@ -76,8 +78,8 @@ const struct SerialField Struc_BoxMon[] = {
     FLD_ARR_(TY_MOVE, moves),
     FLD(TY_U16LE, id),
     FLD_ARR_(TY_U8, exp),
-    FLD_ARR_(TY_U16LE, statExp),
-    FLD(TY_U16LE, DVs),
+    FLD_ARR_(TY_U16LE_GB, statExp),
+    FLD(TY_U16LE_GB, DVs),
     FLD_ARR_(TY_U8, PP),
     FLD(TY_U8, happiness),
     FLD(TY_U8, pokerusStatus),
@@ -92,9 +94,9 @@ const struct SerialField Struc_PartyMon[] = {
     FLD_STR(STRUC_BOXMON, mon),
     FLD(TY_U8, status),
     FLD(TY_U8, unused),
-    FLD(TY_U16LE, HP),
-    FLD(TY_U16LE, maxHP),
-    FLD_ARR_(TY_U16LE, stats)
+    FLD(TY_U16LE_GB, HP),
+    FLD(TY_U16LE_GB, maxHP),
+    FLD_ARR_(TY_U16LE_GB, stats)
 };
 #undef FLD_TYPE
 
@@ -294,7 +296,7 @@ const struct SerialField Struc_PlayerData[] = {
     // used only for BANK(wGameTime)
     //union wGameTime
     FLD(TY_U8, gameTimeCap),
-    FLD(TY_U16LE, gameTimeHours),
+    FLD(TY_U16LE_GB, gameTimeHours),
     FLD(TY_U8, gameTimeMinutes),
     FLD(TY_U8, gameTimeSeconds),
     FLD(TY_U8, gameTimeFrames),
@@ -336,7 +338,7 @@ const struct SerialField Struc_PlayerData[] = {
     FLD_ARR_(TY_U8, money),
     FLD_ARR_(TY_U8, momsMoney),
     FLD(TY_U8, momSavingMoney),
-    FLD(TY_U16LE, coins),
+    FLD(TY_U16LE_GB, coins),
     FLD_ARR_(TY_U8, badges),
     FLD_ARR_(TY_U8, TMsHMs),
     FLD(TY_U8, numItems),
@@ -716,6 +718,12 @@ uint8_t* Serialize_Field(uint8_t* dst, const struct SerialField* fld, const void
             for(uint32_t i = 0; i < fld->count; ++i) 
                 dst = Serialize_U16_LE(dst, *FLD_PTR_IDX(data, fld->offset, i, uint16_t)); 
             return dst;
+        case TY_U16LE_GB:
+            for(uint32_t i = 0; i < fld->count; ++i) {
+                uint16_t value = BigEndianToNative16(*FLD_PTR_IDX(data, fld->offset, i, uint16_t));
+                dst = Serialize_U16_LE(dst, value);
+            }
+            return dst;
         case TY_U16BE:
             for(uint32_t i = 0; i < fld->count; ++i) 
                 dst = Serialize_U16_BE(dst, *FLD_PTR_IDX(data, fld->offset, i, uint16_t));
@@ -891,6 +899,13 @@ const uint8_t* Deserialize_Field(void* data, const struct SerialField* fld, cons
         case TY_U16LE: 
             for(uint32_t i = 0; i < fld->count; ++i) 
                 src = Deserialize_U16_LE(FLD_PTR_IDX(data, fld->offset, i, uint16_t), src); 
+            return src;
+        case TY_U16LE_GB:
+            for(uint32_t i = 0; i < fld->count; ++i) {
+                uint16_t value;
+                src = Deserialize_U16_LE(&value, src);
+                *FLD_PTR_IDX(data, fld->offset, i, uint16_t) = NativeToBigEndian16(value);
+            }
             return src;
         case TY_U16BE:
             for(uint32_t i = 0; i < fld->count; ++i) 

@@ -954,7 +954,7 @@ void SaveBackupPokemonData(void){
     // LD_DE(sBackupPokemonData);
     // LD_BC(wPokemonDataEnd - wPokemonData);
     // CALL(aCopyBytes);
-    CopyBytes_GB(sBackupPokemonData, wPokemonData, wPokemonDataEnd - wPokemonData);
+    Serialize_PokemonData((uint8_t*)GBToRAMAddr(sBackupPokemonData), &gPokemon);
     // CALL(aCloseSRAM);
     CloseSRAM();
     // RET;
