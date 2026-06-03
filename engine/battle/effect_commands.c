@@ -1092,7 +1092,7 @@ void BattleCommand_CheckObedience(void){
 //  A second chance.
     // CP_A_C;
     // IF_C goto UseInstead;
-    if(a < b) {
+    if(a < c) {
     // UseInstead:
     //  Can't use another move if the monster only has one!
         // LD_A_addr(wBattleMonMoves + 1);
@@ -1178,7 +1178,7 @@ void BattleCommand_CheckObedience(void){
 
             // CP_A_B;
             // IF_NC goto RandomMove;
-            if(a < b)
+            if(a >= b)
                 continue;
 
         //  Not the move we were trying to use.
@@ -1196,8 +1196,10 @@ void BattleCommand_CheckObedience(void){
             // LD_A_hl;
             // AND_A(PP_MASK);
             // IF_Z goto RandomMove;
-            if((wram->wBattleMon.pp[a] & PP_MASK) != 0)
-                break;
+            if((wram->wBattleMon.pp[a] & PP_MASK) == 0)
+                continue;
+            wram->wCurMoveNum = a;
+            break;
         }
 
     //  Use it.
@@ -8416,6 +8418,7 @@ void BattleCommand_TrapTarget(void){
         {CLAMP, ClampedByText},  // 'was CLAMPED by'
         {WHIRLPOOL, WhirlpoolTrapText},  // 'was trapped!'
     };
+    enum { NUM_TRAPS = sizeof(Traps) / sizeof(Traps[0]) };
     // LD_A_addr(wAttackMissed);
     // AND_A_A;
     // RET_NZ ;
@@ -8467,8 +8470,9 @@ void BattleCommand_TrapTarget(void){
     // LD_B_A;
     // LD_HL(mBattleCommand_TrapTarget_Traps);
     const struct MoveText* traps = Traps;
+    const struct MoveText* end = Traps + NUM_TRAPS;
 
-    while(traps->move != b) {
+    while(traps < end && traps->move != b) {
     // find_trap_text:
         // LD_A_hli;
         // CP_A_B;
@@ -8479,13 +8483,20 @@ void BattleCommand_TrapTarget(void){
         traps++;
     }
 
+    if(traps >= end) {
+        move_t move = GetBattleVar(BATTLE_VARS_MOVE);
+        traps = Traps;
+        while(traps < end && traps->move != move)
+            traps++;
+    }
+
 
 // found_trap_text:
     // LD_A_hli;
     // LD_H_hl;
     // LD_L_A;
     // JP(mStdBattleTextbox);
-    return StdBattleTextbox(traps->text);
+    return StdBattleTextbox((traps < end)? traps->text: FireSpinTrapText);
 
 // INCLUDE "engine/battle/move_effects/mist.asm"
 
