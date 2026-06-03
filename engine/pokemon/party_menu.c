@@ -500,12 +500,13 @@ void PlacePartyMonTMHMCompatibility(void){
             // ADD_HL_DE;
             // LD_A_hl;
             // LD_addr_A(wCurPartySpecies);
+            wram->wCurPartySpecies = gPokemon.partySpecies[b];
             // PREDEF(pCanLearnTMHMMove);
-            uint8_t c = CanLearnTMHMMove(gPokemon.partySpecies[b], wram->wCurItem);
+            uint8_t compat = CanLearnTMHMMove(gPokemon.partySpecies[b], wram->wPutativeTMHMMove);
             // POP_HL;
             // CALL(aPlacePartyMonTMHMCompatibility_PlaceAbleNotAble);
             // CALL(aPlaceString);
-            PlaceStringSimple(PlacePartyMonTMHMCompatibility_PlaceAbleNotAble(c), hl);
+            PlaceStringSimple(PlacePartyMonTMHMCompatibility_PlaceAbleNotAble(compat), hl);
         }
 
     // next:

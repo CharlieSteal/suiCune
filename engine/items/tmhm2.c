@@ -5,6 +5,7 @@
 #include "../../data/moves/tmhm_moves.h"
 
 uint8_t CanLearnTMHMMove(species_t species, move_t move){
+    (void)move;
     // LD_A_addr(wCurPartySpecies);
     // LD_addr_A(wCurSpecies);
     // CALL(aGetBaseData);
@@ -15,6 +16,7 @@ uint8_t CanLearnTMHMMove(species_t species, move_t move){
     // LD_A_addr(wPutativeTMHMMove);
     // LD_B_A;
     // LD_C(0);
+    move_t target = wram->wPutativeTMHMMove;
     uint8_t c = 0;
     // LD_HL(mTMHMMoves);
     const move_t* hl = TMHMMoves;
@@ -34,7 +36,7 @@ uint8_t CanLearnTMHMMove(species_t species, move_t move){
         }
         // CP_A_B;
         // IF_Z goto found;
-        if(a == move)
+        if(a == target)
             break;
         // INC_C;
         c++;

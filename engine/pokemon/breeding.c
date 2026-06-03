@@ -739,8 +739,9 @@ inherit_tmhm:
         // IF_NZ goto loop5;
     } while(*tmhm != *de);
     // LD_addr_A(wPutativeTMHMMove);
+    wram->wPutativeTMHMMove = *de;
     // PREDEF(pCanLearnTMHMMove);
-    uint8_t c = CanLearnTMHMMove(wram->wCurPartySpecies, *de);
+    uint8_t c = CanLearnTMHMMove(wram->wCurPartySpecies, wram->wPutativeTMHMMove);
     // LD_A_C;
     // AND_A_A;
     // IF_Z goto done;
