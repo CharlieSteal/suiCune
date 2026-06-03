@@ -5,11 +5,13 @@
 #include "../../data/moves/tmhm_moves.h"
 
 uint8_t CanLearnTMHMMove(species_t species, move_t move){
+    (void)species;
     (void)move;
     // LD_A_addr(wCurPartySpecies);
     // LD_addr_A(wCurSpecies);
     // CALL(aGetBaseData);
-    GetBaseData(species);
+    wram->wCurSpecies = wram->wCurPartySpecies;
+    GetBaseData(wram->wCurSpecies);
     // LD_HL(wBaseTMHM);
     // PUSH_HL;
 
