@@ -230,7 +230,7 @@ u8_flag_s ForgetMove(struct PartyMon* mon){
         wram->w2DMenuFlags2 = 0x0;
         // LD_A(0x20);
         // LD_addr_A(w2DMenuCursorOffsets);
-        wram->w2DMenuCursorOffsets = 0x0;
+        wram->w2DMenuCursorOffsets = 0x20;
         // CALL(aStaticMenuJoypad);
         uint8_t res = StaticMenuJoypad();
         // PUSH_AF;
