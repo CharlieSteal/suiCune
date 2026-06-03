@@ -319,7 +319,9 @@ void JSONLoadPokemonBaseStats(struct BaseData* data) {
                     sprintf(buffer, "%s_TMNUM", tm_name->string);
                     u32_flag_s res = FindConstantValueByString(buffer);
                     if(res.flag) {
-                        data[i].TMHM[res.a >> 3] |= (1 << (res.a & 7));
+                        // TM/HM flags are 0-based (TM01 = bit 0), matching the tmhm macro.
+                        uint8_t bit = (uint8_t)(res.a - 1);
+                        data[i].TMHM[bit >> 3] |= (1 << (bit & 7));
                     }
                 }
             }

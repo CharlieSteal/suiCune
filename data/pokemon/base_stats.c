@@ -3,7 +3,7 @@
 #include "../../util/variadic_macros.h"
 #include <stddef.h>
 #define tmhm_id_byte(_x) (_x >> 3)
-#define tmhm_value_(_x, _y) ((_x == (_y##_TMNUM >> 3))? (1 << (_y##_TMNUM & 7)): 0) 
+#define tmhm_value_(_x, _y) ((_x == ((_y##_TMNUM - 1) >> 3))? (1 << ((_y##_TMNUM - 1) & 7)): 0) 
 #define tm_byte_(_x, ...) [_x] = CPPX_INVOKE( CPPX_CONCAT ( tmhm_value_, PP_NARG(__VA_ARGS__) ) , (_x, __VA_ARGS__) )
 #define tmhm_value_1(_x, _0) tmhm_value_(_x, _0)
 #define tmhm_value_2(_x, _0, _1)  tmhm_value_1(_x, _0) | tmhm_value_(_x, _1) 
