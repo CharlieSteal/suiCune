@@ -3,6 +3,7 @@
 #include "../../util/scripting_macros.h"
 #include "events.h"
 #include "../../home/map.h"
+#include "../../data/script_pointers.h"
 #include "../../home/map_objects.h"
 #include "player_movement.h"
 #include "npc_movement.h"
@@ -900,54 +901,63 @@ static void PlayTalkObject(void){
     PlaySFX(SFX_READ_TEXT_2);
 }
 
+// Map object 0 is the player; object events use slots 1..count.
+static uint8_t ObjectEventIndexFromMapObject(uint8_t mapObjectIndex) {
+    if(mapObjectIndex == 0 || mapObjectIndex > gCurMapObjectEventCount)
+        return 0xff;
+    return mapObjectIndex - 1;
+}
+
+static Script_fn_t GetObjectEventScript(struct MapObject* mobj, uint8_t mapObjectIndex) {
+    uint8_t eventIndex = ObjectEventIndexFromMapObject(mapObjectIndex);
+
+    if(eventIndex != 0xff) {
+        Script_fn_t script = gCurMapObjectEventsPointer[eventIndex].script;
+        if(script != NULL)
+            return script;
+
+        uint32_t gb_ptr = GetGBScriptPointer(gCurMapData.mapGroup, gCurMapData.mapNumber, eventIndex);
+        if(redirectFunc[gb_ptr])
+            return (Script_fn_t)redirectFunc[gb_ptr];
+    }
+
+    uint32_t gb_ptr = (GetMapScriptsBank() << 14) | (mobj->objectScript & 0x3fff);
+    return (Script_fn_t)redirectFunc[gb_ptr];
+}
+
 static u8_flag_s ObjectEventTypeArray_script(struct MapObject* bc) {
     log_debug("script=$%04x\n", bc->objectScript);
-    // LD_HL(MAPOBJECT_SCRIPT_POINTER);
-    // ADD_HL_BC;
-    // LD_A_hli;
-    // LD_H_hl;
-    // LD_L_A;
-    // CALL(aGetMapScriptsBank);
-    if(bc->objectScript <= NUM_OBJECTS) {
-        Script_fn_t hl = gCurMapObjectEventsPointer[bc->objectScript].script;
-        // CALL(aCallScript);
-        // RET;
-        return u8_flag(CallScript(hl), true);
+    Script_fn_t script = GetObjectEventScript(bc, hram.hLastTalked);
+    if(script == NULL)
+        script = ObjectEvent;
+    return u8_flag(CallScript(script), true);
+}
+
+static const struct ItemBall* GetObjectEventItemBall(struct MapObject* mobj, uint8_t mapObjectIndex) {
+    uint8_t eventIndex = ObjectEventIndexFromMapObject(mapObjectIndex);
+
+    if(eventIndex != 0xff) {
+        const struct ItemBall* ball = gCurMapObjectEventsPointer[eventIndex].item_ball;
+        if(ball != NULL)
+            return ball;
+
+        uint32_t gb_ptr = GetGBScriptPointer(gCurMapData.mapGroup, gCurMapData.mapNumber, eventIndex);
+        if(redirectFunc[gb_ptr])
+            return (const struct ItemBall*)redirectFunc[gb_ptr];
     }
-    else {
-        log_debug("script_gb=$%08x\n", (GetMapScriptsBank() << 14) | (bc->objectScript & 0x3fff));
-        if(!redirectFunc[(GetMapScriptsBank() << 14) | (bc->objectScript & 0x3fff)])
-            return u8_flag(CallScript(ObjectEvent), true);
-        Script_fn_t script = (Script_fn_t)redirectFunc[(GetMapScriptsBank() << 14) | (bc->objectScript & 0x3fff)];
-        return u8_flag(CallScript(script), true);
-    }
+
+    uint32_t gb_ptr = (GetMapScriptsBank() << 14) | (mobj->objectScript & 0x3fff);
+    return (const struct ItemBall*)redirectFunc[gb_ptr];
 }
 
 static u8_flag_s ObjectEventTypeArray_itemball(struct MapObject* bc) {
-    (void)bc;
-    // LD_HL(MAPOBJECT_SCRIPT_POINTER);
-    // ADD_HL_BC;
-    // LD_A_hli;
-    // LD_H_hl;
-    // LD_L_A;
-    // CALL(aGetMapScriptsBank);
-    // LD_DE(wItemBallData);
-    // LD_BC(wItemBallDataEnd - wItemBallData);
-    // CALL(aFarCopyBytes);
-    if(bc->objectScript <= NUM_OBJECTS) {
-        const struct ItemBall* ball = gCurMapObjectEventsPointer[bc->objectScript].item_ball;
+    const struct ItemBall* ball = GetObjectEventItemBall(bc, hram.hLastTalked);
+    if(ball != NULL) {
         wram->wItemBallItemID = ball->item;
         wram->wItemBallQuantity = ball->quantity;
     }
     else {
-        if(redirectFunc[(GetMapScriptsBank() << 14) | (bc->objectScript & 0x3fff)]) {
-            const struct ItemBall* ball = (const struct ItemBall*)redirectFunc[(GetMapScriptsBank() << 14) | (bc->objectScript & 0x3fff)];
-            wram->wItemBallItemID = ball->item;
-            wram->wItemBallQuantity = ball->quantity;
-        }
-        else {
-            FarCopyBytes(wItemBallData, GetMapScriptsBank(), bc->objectScript, wItemBallDataEnd - wItemBallData);
-        }
+        FarCopyBytes(wItemBallData, GetMapScriptsBank(), bc->objectScript, wItemBallDataEnd - wItemBallData);
     }
     // LD_A(PLAYEREVENT_ITEMBALL);
     // SCF;
