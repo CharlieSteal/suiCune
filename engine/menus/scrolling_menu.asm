@@ -179,7 +179,7 @@ ScrollingMenuJoyAction:
 	ld b, a
 	ld a, [wScrollingMenuListSize]
 	cp b
-	jr c, .xor_dec_down
+	jr nc, .xor_dec_down
 	inc [hl]
 	jp xor_a
 

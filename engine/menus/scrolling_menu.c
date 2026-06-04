@@ -288,7 +288,8 @@ static u8_flag_s ScrollingMenuJoyAction(const struct MenuData* data){
             // LD_A_addr(wScrollingMenuListSize);
             // CP_A_B;
             // IF_C goto xor_dec_down;
-            if(wram->wScrollingMenuListSize < wram->wMenuScrollPosition + data->scrollingMenu.rows)
+            // Last visible index is scroll + rows - 1; stop before it reaches list size.
+            if(wram->wMenuScrollPosition + data->scrollingMenu.rows >= wram->wScrollingMenuListSize)
                 return u8_flag(0xff, false);
             // INC_hl;
             wram->wMenuScrollPosition++;

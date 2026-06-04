@@ -32,6 +32,8 @@ bool Elevator(const struct ElevatorData* de){
     // IF_C goto quit;
     if(res.flag)
         return true;
+    if(res.a >= wram->wCurElevatorCount)
+        return true;
     // LD_HL(wElevatorOriginFloor);
     // CP_A_hl;
     // IF_Z goto quit;
@@ -87,6 +89,8 @@ static void Elevator_LoadFloors(void) {
         // CP_A(-1);
         // IF_NZ goto loop;
     }
+    // ROM elevator tables end with db -1; match that so stray menu reads fail safely.
+    wram->wCurElevatorFloors[wram->wCurElevatorCount] = 0xff;
     // RET;
     return;
 }
@@ -152,6 +156,8 @@ static u8_flag_s Elevator_FindCurrentFloor(void) {
 }
 
 static void Elevator_GoToFloor(uint8_t a){
+    if(a >= wram->wCurElevatorCount)
+        return;
     // PUSH_AF;
     // LD_HL(wElevatorPointer);
     // LD_A_hli;
