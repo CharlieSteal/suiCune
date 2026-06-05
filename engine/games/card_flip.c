@@ -992,7 +992,7 @@ void CardFlip_BlankDiscardedCardSlot(void){
         // LD_A_hl;
         // AND_A_A;
         // IF_NZ goto discarded4;
-        if(wram->wDiscardPile[card + 4]){
+        if(wram->wDiscardPile[card + 4] == 0){
             // hlcoord(13, 6, wTilemap);
             // ADD_HL_BC;
             // ADD_HL_BC;
@@ -1027,7 +1027,7 @@ void CardFlip_BlankDiscardedCardSlot(void){
         // LD_A_hl;
         // AND_A_A;
         // IF_NZ goto discarded3;
-        if(wram->wDiscardPile[card + 4] == 0){
+        if(wram->wDiscardPile[card - 4] == 0){
             // hlcoord(13, 7, wTilemap);
             // ADD_HL_BC;
             // ADD_HL_BC;
@@ -1863,7 +1863,7 @@ num_pair_down:
         return;
     // INC_hl;
     // INC_hl;
-    *hl -= 2;
+    *hl += 2;
 
 play_sound:
     // LD_DE(SFX_POKEBALLS_PLACED_ON_TABLE);
@@ -2096,7 +2096,7 @@ void CardFlip_UpdateCursorOAM(void){
         cardflip_cursor4(17, 12, 0, 4, SingleTile),
         cardflip_cursor4(19, 12, 0, 4, SingleTile),
     };
-    // CALL(aClearSprites);
+    ClearSprites();
     // LDH_A_addr(hCGB);
     // AND_A_A;
     // IF_NZ goto skip;
