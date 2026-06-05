@@ -890,7 +890,7 @@ void ConsumeTM(void){
     // LD_B(0);
     // LD_C_A;
     // ADD_HL_BC;
-    uint8_t* hl = gPlayer.TMsHMs + wram->wTempTMHM;
+    uint8_t* hl = gPlayer.TMsHMs + (wram->wTempTMHM - 1);
     // LD_A_hl;
     // AND_A_A;
     // RET_Z ;
