@@ -452,11 +452,15 @@ const txt_cmd_s SchoolboyJack1BeatenText[] = {
     text_start("Wha-wha-what?"
         t_done )
 };
+static const uint8_t SchoolboyJackNumTMs = NUM_TMS;
+
 const txt_cmd_s SchoolboyJackTradeMonText[] = {
     text_start("There is a lot"
         t_line "to learn."
         t_para "For example…"
-        t_para "There are " _s(NUM_TMS) " kinds"
+        t_para "There are ")
+    text_decimal((uint8_t*)&SchoolboyJackNumTMs, 1, 2)
+    text_start(" kinds"
         t_line "of TMs."
         t_para "Traded #MON"
         t_line "level up faster."
