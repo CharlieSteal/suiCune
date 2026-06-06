@@ -888,7 +888,7 @@ breedmon:
         // DEC_A;
         // LD_B_A;
         // CALL(aRestorePPOfDepositedPokemon);
-        RestorePPOfDepositedPokemon(&box, box.count);
+        RestorePPOfDepositedPokemon(&box, box.count - 1);
         break;
     // CP_A(DAY_CARE_DEPOSIT);
     // JP_Z (mSendGetMonIntoFromBox_CloseSRAM_And_ClearCarryFlag);
@@ -1466,13 +1466,13 @@ bool SendMonIntoBox(void){
     // LD_DE(wTempMonMoves);
     // LD_BC(NUM_MOVES);
     // CALL(aCopyBytes);
-    CopyBytes(boxmon->moves, wram->wTempMon.mon.moves, sizeof(boxmon->moves));
+    CopyBytes(wram->wTempMon.mon.moves, boxmon->moves, sizeof(boxmon->moves));
 
     // LD_HL(sBoxMon1PP);
     // LD_DE(wTempMonPP);
     // LD_BC(NUM_MOVES);
     // CALL(aCopyBytes);
-    CopyBytes(boxmon->PP, wram->wTempMon.mon.PP, sizeof(boxmon->PP));
+    CopyBytes(wram->wTempMon.mon.PP, boxmon->PP, sizeof(boxmon->PP));
 
     // LD_B(0);
     // CALL(aRestorePPOfDepositedPokemon);
@@ -2381,18 +2381,18 @@ uint16_t CalcMonStatC(const uint16_t* statExp, uint16_t dvs, uint8_t b, uint8_t 
     // RET;
 }
 
-uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
+uint8_t GivePoke(uint8_t ext, const char* nickname, const char* otName){
     // PUSH_DE;
     // PUSH_BC;
     // XOR_A_A;  // PARTYMON
     // LD_addr_A(wMonType);
     wram->wMonType = PARTYMON;
     // CALL(aTryAddMonToParty);
-    bool cy = TryAddMonToParty(wram->wCurPartySpecies, wram->wCurPartyLevel);
+    bool addedToParty = TryAddMonToParty(wram->wCurPartySpecies, wram->wCurPartyLevel);
     // IF_NC goto failed;
     uint8_t* de;
-    uint8_t a;
-    if(!cy) {
+    uint8_t boxFlag;
+    if(!addedToParty) {
     // failed:
         // LD_A_addr(wCurPartySpecies);
         // LD_addr_A(wTempEnemyMonSpecies);
@@ -2413,9 +2413,8 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
         de = wram->wMonOrItemNameBuffer;
         // POP_BC;
         // LD_A_B;
-        a = b;
         // LD_B(1);
-        b = 1;
+        boxFlag = 1;
         // PUSH_BC;
         // PUSH_DE;
         // PUSH_AF;
@@ -2436,12 +2435,12 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
         // CALL(aSkipNames);
         // LD_D_H;
         // LD_E_L;
-        de = gPokemon.partyMonNickname[gPokemon.partyCount - 1];
+        wram->wCurPartyMon = gPokemon.partyCount - 1;
+        de = gPokemon.partyMonNickname[wram->wCurPartyMon];
         // POP_BC;
         // LD_A_B;
-        a = b;
         // LD_B(0);
-        b = 0;
+        boxFlag = 0;
         // PUSH_BC;
         // PUSH_DE;
         // PUSH_AF;
@@ -2473,7 +2472,7 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
     // POP_AF;
     // AND_A_A;
     // JP_Z (mGivePoke_wildmon);
-    if(a == 0) {
+    if(ext == 0) {
     // wildmon:
         // POP_DE;
         // POP_BC;
@@ -2482,7 +2481,7 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
         // LD_A_B;
         // AND_A_A;
         // IF_Z goto party;
-        if(b == 0) {
+        if(boxFlag == 0) {
         // party:
             // FARCALL(aSetCaughtData);
             SetCaughtData(wram->wCurPartyLevel);
@@ -2525,8 +2524,14 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
         // PUSH_DE;
         // PUSH_BC;
         // IF_NZ goto send_to_box;
-        uint8_t* hl2 = U82C(otName);
-        if(b != 0) {
+        const uint8_t* ot = U82C(otName);
+        uint8_t caughtData;
+        do {
+            caughtData = *(ot++);
+        } while(caughtData != 0x50);
+        caughtData = *(ot++);
+
+        if(boxFlag != 0) {
         // send_to_box:
             // LD_A(BANK(sBoxMonOTs));
             // CALL(aOpenSRAM);
@@ -2534,12 +2539,13 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             // LD_DE(sBoxMonOTs);
             uint16_t de2 = sBoxMonOTs;
 
+            ot = U82C(otName);
             uint8_t n;
             do {
             // loop:
                 // LD_A_addr(wScriptBank);
                 // CALL(aGetFarByte);
-                n = *(hl2++);
+                n = *(ot++);
                 // LD_de_A;
                 gb_write(de2++, n);
                 // INC_HL;
@@ -2550,7 +2556,6 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             // LD_A_addr(wScriptBank);
             // CALL(aGetFarByte);
             // LD_B_A;
-            b = *hl2;
             // LD_HL(sBoxMon1ID);
             // CALL(aRandom);
             // LD_hli_A;
@@ -2561,7 +2566,7 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             // CALL(aCloseSRAM);
             CloseSRAM();
             // FARCALL(aSetGiftBoxMonCaughtData);
-            SetGiftBoxMonCaughtData(b);
+            SetGiftBoxMonCaughtData(caughtData);
             // goto skip_nickname;
         }
         else {
@@ -2574,12 +2579,13 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             uint8_t* de2 = gPokemon.partyMonOT[wram->wCurPartyMon];
             // POP_HL;
 
+            ot = U82C(otName);
             uint8_t n;
             do {
             // otnameloop:
                 // LD_A_addr(wScriptBank);
                 // CALL(aGetFarByte);
-                n = *(hl2++);
+                n = *(ot++);
                 // LD_de_A;
                 *(de2++) = n;
                 // INC_HL;
@@ -2590,7 +2596,6 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             // LD_A_addr(wScriptBank);
             // CALL(aGetFarByte);
             // LD_B_A;
-            b = *hl2;
             // PUSH_BC;
             // LD_A_addr(wCurPartyMon);
             // LD_HL(wPartyMon1ID);
@@ -2602,7 +2607,7 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
             gPokemon.partyMon[wram->wCurPartyMon].mon.id = NativeToBigEndian16(RANDY_OT_ID);
             // POP_BC;
             // FARCALL(aSetGiftPartyMonCaughtData);
-            SetGiftBoxMonCaughtData(b);
+            SetGiftPartyMonCaughtData(caughtData);
             // goto skip_nickname;
         }
     }
@@ -2613,7 +2618,7 @@ uint8_t GivePoke(uint8_t b, const char* nickname, const char* otName){
     // LD_A_B;
     // AND_A_A;
     // RET_Z ;
-    if(b == 0)
+    if(boxFlag == 0)
         return 0;
     // LD_HL(mWasSentToBillsPCText);
     // CALL(aPrintText);

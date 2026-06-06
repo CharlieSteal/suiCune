@@ -1884,7 +1884,10 @@ static uint8_t* GetNicknamenamePointer2(void){
             return wram->wOTPartyMonNickname[wram->wCurPartyMon];
         case BOXMON: {
             OpenSRAM(MBANK(asBoxMonNicknames));
-            CopyBytes(wram->wStringBuffer1, GBToRAMAddr(sBoxMonNicknames), MON_NAME_LENGTH);
+            CopyBytes(
+                wram->wStringBuffer1,
+                GBToRAMAddr(sBoxMonNicknames + (wram->wCurPartyMon * MON_NAME_LENGTH)),
+                MON_NAME_LENGTH);
             CloseSRAM();
             return wram->wStringBuffer1;
         }

@@ -124,7 +124,6 @@ const struct Pokemail GiftSpearowMail = {
 };
 const char GiftSpearowName[] = "KENYA@";
 const char GiftSpearowOTName[] = "RANDY@";
-    //db(0) // unused
 bool Route35GoldenrodGatePokefanFScript(script_s* s) {
     SCRIPT_BEGIN
     faceplayer
