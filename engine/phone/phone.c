@@ -965,7 +965,7 @@ void GetCallerName(uint8_t* hl, struct TrainerId c){
     }
 
     // CALL(aPhone_GetTrainerName);
-    uint8_t* name = GetTrainerName(c.trainerId, c.trainerClass);
+    uint8_t* name = GetTrainerName(c.trainerId - 1, c.trainerClass);
     // PUSH_HL;
     // PUSH_BC;
     // CALL(aPlaceString);
