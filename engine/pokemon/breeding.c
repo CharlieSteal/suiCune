@@ -2,6 +2,7 @@
 #include "breeding.h"
 #include "mon_stats.h"
 #include "move_mon.h"
+#include "experience.h"
 #include "caught_data.h"
 #include "../../home/pokemon.h"
 #include "../../home/copy.h"
@@ -472,6 +473,15 @@ void HatchEggs(void){
             // LD_A_hl;
             // LD_addr_A(wCurPartyLevel);
             wram->wCurPartyLevel = hl->mon.level;
+            if(wram->wCurPartyLevel != EGG_LEVEL)
+                wram->wCurPartyLevel = EGG_LEVEL;
+            hl->mon.level = wram->wCurPartyLevel;
+            {
+                uint32_t exp = CalcExpAtLevel(wram->wCurPartyLevel);
+                hl->mon.exp[0] = (exp >> 16) & 0xff;
+                hl->mon.exp[1] = (exp >> 8) & 0xff;
+                hl->mon.exp[2] = exp & 0xff;
+            }
             // POP_HL;
             // PUSH_HL;
             // LD_BC(MON_STATUS);

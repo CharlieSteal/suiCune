@@ -75,6 +75,9 @@ void v_GiveOddEgg(void){
     CopyBytes(&wram->wOddEgg, mon, sizeof(wram->wOddEgg));
     CopyBytes(wram->wOddEggName, mon->nickname, sizeof(wram->wOddEggName));
 
+    wram->wOddEgg.mon.level = EGG_LEVEL;
+    wram->wCurPartyLevel = EGG_LEVEL;
+
     // LD_A(EGG_TICKET);
     // LD_addr_A(wCurItem);
     wram->wCurItem = EGG_TICKET;

@@ -87,3 +87,5 @@ bin/
 
 # Mobile config file (should be generated automatically)
 mobile.bin
+*.code-workspace
+*.lnk

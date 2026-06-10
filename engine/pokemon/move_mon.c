@@ -141,6 +141,8 @@ bool GeneratePartyMonStats(struct PartyMon* hl, species_t species, uint8_t level
     // LD_D_H;
     // PUSH_HL;
 
+    wram->wCurPartyLevel = level;
+
 // Initialize the species
     // LD_A_addr(wCurPartySpecies);
     // LD_addr_A(wCurSpecies);
