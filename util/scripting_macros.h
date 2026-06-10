@@ -123,7 +123,7 @@
 #define getmonname(_b, _mon)        SCRIPT_EVCMD(Script_getmonname, _b, _mon)
 #define getitemname(_b, _item)      SCRIPT_EVCMD(Script_getitemname, _item, _b)
 #define getcurlandmarkname(b)       SCRIPT_EVCMD(Script_getcurlandmarkname, b)
-#define getlandmarkname(_a, _b)     SCRIPT_EVCMD(Script_getlandmarkname, _a, _b)
+#define getlandmarkname(_b, _lm)    SCRIPT_EVCMD(Script_getlandmarkname, _lm, _b)
 #define gettrainername(b,c,a)       SCRIPT_EVCMD(Script_gettrainername, b, c, a)
 #define gettrainerclassname(b,c)    SCRIPT_EVCMD(Script_gettrainerclassname, b, c)
 #define getmoney(_b, _act)          SCRIPT_EVCMD(Script_getmoney, _b, _act)

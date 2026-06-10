@@ -2510,11 +2510,11 @@ static void ConvertLandmarkToText(uint8_t a, uint8_t b){
     return GetStringBuffer(b, GetLandmarkName(a));
 }
 
-void Script_getlandmarkname(script_s* s, uint8_t a, uint8_t b){
+void Script_getlandmarkname(script_s* s, uint8_t landmark, uint8_t buf){
     // CALL(aGetScriptByte);
     // JR(mConvertLandmarkToText);
     (void)s;
-    return ConvertLandmarkToText(a, b);
+    return ConvertLandmarkToText(landmark, buf);
 }
 
 void Script_gettrainername(script_s* s, uint8_t a, uint8_t b, uint8_t c){

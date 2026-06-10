@@ -138,7 +138,7 @@ void Script_getmonname(script_s* s, uint8_t buf, species_t species);
 void Script_getitemname(script_s* s, item_t item, uint8_t buf);
 void Script_getcurlandmarkname(script_s* s, uint8_t b);
 // void ConvertLandmarkToText(uint8_t a, uint8_t b);
-void Script_getlandmarkname(script_s* s, uint8_t a, uint8_t b);
+void Script_getlandmarkname(script_s* s, uint8_t landmark, uint8_t buf);
 void Script_gettrainername(script_s* s, uint8_t a, uint8_t b, uint8_t c);
 void Script_getname(script_s* s, uint8_t sb, uint8_t type, uint8_t id);
 void ContinueToGetName(uint8_t sb, uint8_t type, uint8_t id);
