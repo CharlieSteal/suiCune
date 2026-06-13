@@ -2860,6 +2860,7 @@ BGEffect_FillLYOverridesBackup:
 	ld l, a
 	ldh a, [hLYOverrideEnd]
 	sub l
+	inc a
 	ld d, a
 	pop af
 .loop

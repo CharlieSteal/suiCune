@@ -3394,7 +3394,7 @@ static void BattleBGEffect_WobblePlayer(struct BattleBGEffect* bc) {
             hram.hLYOverrideStart = 0x0;
             // LD_A(0x37);
             // LDH_addr_A(hLYOverrideEnd);
-            hram.hLYOverrideStart = 0x37;
+            hram.hLYOverrideEnd = 0x37;
             // LD_HL(BG_EFFECT_STRUCT_PARAM);
             // ADD_HL_BC;
             // LD_hl(0x0);
@@ -4260,7 +4260,7 @@ static void BGEffect_FillLYOverridesBackup(uint8_t a) {
     // SUB_A_L;
     // LD_D_A;
     // POP_AF;
-    uint8_t d = hram.hLYOverrideEnd - hram.hLYOverrideStart;
+    uint8_t d = hram.hLYOverrideEnd - hram.hLYOverrideStart + 1;
     uint8_t* hl = wram->wLYOverridesBackup + hram.hLYOverrideStart;
 
     do {
