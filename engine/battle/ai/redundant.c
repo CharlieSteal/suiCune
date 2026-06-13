@@ -25,7 +25,7 @@ bool AI_Redundant(uint8_t c){
         // LD_A_addr(wBattleMonStatus);
         // AND_A(SLP);
         // IF_Z return true;
-        if(wram->wBattleMon.status[0] & SLP)
+        if((wram->wBattleMon.status[0] & SLP) == 0)
             return true;
         // goto NotRedundant;
         return false;

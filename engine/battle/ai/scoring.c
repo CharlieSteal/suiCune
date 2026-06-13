@@ -159,36 +159,41 @@ void AI_Basic(void){
         // POP_DE;
         // POP_HL;
         // IF_NZ goto discourage;
-        if(!AI_Redundant(mv->effect)) {
-        //  Dismiss status-only moves if the player can't be statused.
-            // LD_A_addr(wEnemyMoveStruct + MOVE_EFFECT);
-            // PUSH_HL;
-            // PUSH_DE;
-            // PUSH_BC;
-            // LD_HL(mStatusOnlyEffects);
-            // LD_DE(1);
-            // CALL(aIsInArray);
-
-            // POP_BC;
-            // POP_DE;
-            // POP_HL;
-            // IF_NC goto checkmove;
-            if(IsInU8Array(StatusOnlyEffects, mv->effect))
-                continue;
-
-            // LD_A_addr(wBattleMonStatus);
-            // AND_A_A;
-            // IF_NZ goto discourage;
-            if(wram->wBattleMon.status[0] == 0) {
-
-            //  Dismiss Safeguard if it's already active.
-                // LD_A_addr(wPlayerScreens);
-                // BIT_A(SCREENS_SAFEGUARD);
-                // IF_Z goto checkmove;
-                if(!bit_test(wram->wPlayerScreens, SCREENS_SAFEGUARD))
-                    continue;
-            }
+        if(AI_Redundant(mv->effect)) {
+            AIDiscourageMove(hl);
+            continue;
         }
+
+    //  Dismiss status-only moves if the player can't be statused.
+        // LD_A_addr(wEnemyMoveStruct + MOVE_EFFECT);
+        // PUSH_HL;
+        // PUSH_DE;
+        // PUSH_BC;
+        // LD_HL(mStatusOnlyEffects);
+        // LD_DE(1);
+        // CALL(aIsInArray);
+
+        // POP_BC;
+        // POP_DE;
+        // POP_HL;
+        // IF_NC goto checkmove;
+        if(!IsInU8Array(StatusOnlyEffects, mv->effect))
+            continue;
+
+        // LD_A_addr(wBattleMonStatus);
+        // AND_A_A;
+        // IF_NZ goto discourage;
+        if(wram->wBattleMon.status[0] != 0) {
+            AIDiscourageMove(hl);
+            continue;
+        }
+
+    //  Dismiss Safeguard if it's already active.
+        // LD_A_addr(wPlayerScreens);
+        // BIT_A(SCREENS_SAFEGUARD);
+        // IF_Z goto checkmove;
+        if(!bit_test(wram->wPlayerScreens, SCREENS_SAFEGUARD))
+            continue;
 
     // discourage:
         // CALL(aAIDiscourageMove);
