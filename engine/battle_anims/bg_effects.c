@@ -2587,6 +2587,7 @@ static void BattleBGEffect_WobbleMon(struct BattleBGEffect* bc) {
             // INC_A;
             // LDH_addr_A(hLYOverrideEnd);
             hram.hLYOverrideEnd++;
+            hram.hLYOverrideEnd++;  // include scanline at end (retail fill is end - start)
             // LD_HL(BG_EFFECT_STRUCT_PARAM);
             // ADD_HL_BC;
             // LD_hl(0x0);
@@ -4260,7 +4261,7 @@ static void BGEffect_FillLYOverridesBackup(uint8_t a) {
     // SUB_A_L;
     // LD_D_A;
     // POP_AF;
-    uint8_t d = hram.hLYOverrideEnd - hram.hLYOverrideStart + 1;
+    uint8_t d = hram.hLYOverrideEnd - hram.hLYOverrideStart;
     uint8_t* hl = wram->wLYOverridesBackup + hram.hLYOverrideStart;
 
     do {
